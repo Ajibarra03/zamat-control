@@ -45,9 +45,9 @@ public class MainActivity extends Activity {
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         webView.setBackgroundColor(Color.rgb(14, 36, 28));
 
-        // Android moderno puede dibujar edge-to-edge. Reservamos físicamente el
-        // espacio de la barra de estado, notch/cámara y navegación. Si un fabricante
-        // reporta un inset 0, aplicamos un mínimo seguro para evitar superposiciones.
+        // La APK reserva físicamente las barras del sistema. El CSS móvil ya no
+        // duplica este espacio, por lo que el encabezado comienza justo debajo
+        // de la barra de estado y el panel lateral queda a la misma altura visual.
         webView.setOnApplyWindowInsetsListener((view, insets) -> {
             int left;
             int top;
@@ -86,7 +86,7 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(false);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setUserAgentString(settings.getUserAgentString() + " ZAMATAndroid/0.1.3");
+        settings.setUserAgentString(settings.getUserAgentString() + " ZAMATAndroid/0.1.4");
 
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
