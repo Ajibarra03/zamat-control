@@ -28,6 +28,11 @@ public class MainActivity extends Activity {
     private static final String APP_HOST = "ajibarra03.github.io";
     private WebView webView;
 
+    private int dp(int value) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round(value * density);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,15 +43,17 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        webView.setBackgroundColor(Color.rgb(247, 244, 237));
+        webView.setBackgroundColor(Color.rgb(14, 36, 28));
 
-        // Android 15 aplica edge-to-edge para apps modernas. Estos insets mantienen
-        // ZAMAT fuera de la barra de estado, notch/cámara y barra/botones de navegación.
+        // Android moderno puede dibujar edge-to-edge. Reservamos físicamente el
+        // espacio de la barra de estado, notch/cámara y navegación. Si un fabricante
+        // reporta un inset 0, aplicamos un mínimo seguro para evitar superposiciones.
         webView.setOnApplyWindowInsetsListener((view, insets) -> {
-            int left = 0;
-            int top = 0;
-            int right = 0;
-            int bottom = 0;
+            int left;
+            int top;
+            int right;
+            int bottom;
+
             if (android.os.Build.VERSION.SDK_INT >= 30) {
                 android.graphics.Insets bars = insets.getInsets(
                     WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout()
@@ -61,6 +68,9 @@ public class MainActivity extends Activity {
                 right = insets.getSystemWindowInsetRight();
                 bottom = insets.getSystemWindowInsetBottom();
             }
+
+            top = Math.max(top, dp(24));
+            bottom = Math.max(bottom, dp(20));
             view.setPadding(left, top, right, bottom);
             return insets;
         });
@@ -76,7 +86,7 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(false);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setUserAgentString(settings.getUserAgentString() + " ZAMATAndroid/0.1.2");
+        settings.setUserAgentString(settings.getUserAgentString() + " ZAMATAndroid/0.1.3");
 
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
