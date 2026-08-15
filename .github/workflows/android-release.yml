@@ -1,10 +1,13 @@
-name: ZAMAT Android V0.1.0
+name: ZAMAT Android V0.1.2
 
 on:
   push:
     branches: [main]
     paths:
       - 'android/**'
+      - 'app.css'
+      - 'responsive-v0.1.1.css'
+      - 'service-worker.js'
       - '.github/workflows/android-release.yml'
   workflow_dispatch:
 
@@ -40,20 +43,20 @@ jobs:
 
       - name: Prepare release files
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk ZAMAT-Control-V0.1.0.apk
-          zip -r ZAMAT-Control-Web-V0.1.0.zip index.html app.css app.js manifest.webmanifest service-worker.js assets README.md
+          cp android/app/build/outputs/apk/debug/app-debug.apk ZAMAT-Control-V0.1.2.apk
+          zip -r ZAMAT-Control-Web-V0.1.2.zip index.html app.css responsive-v0.1.1.css app.js manifest.webmanifest service-worker.js assets README.md
 
-      - name: Create or update GitHub Release V0.1.0
+      - name: Create or update GitHub Release V0.1.2
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view V0.1.0 >/dev/null 2>&1; then
-            gh release upload V0.1.0 ZAMAT-Control-V0.1.0.apk ZAMAT-Control-Web-V0.1.0.zip --clobber
+          if gh release view V0.1.2 >/dev/null 2>&1; then
+            gh release upload V0.1.2 ZAMAT-Control-V0.1.2.apk ZAMAT-Control-Web-V0.1.2.zip --clobber
           else
-            gh release create V0.1.0 \
-              ZAMAT-Control-V0.1.0.apk \
-              ZAMAT-Control-Web-V0.1.0.zip \
+            gh release create V0.1.2 \
+              ZAMAT-Control-V0.1.2.apk \
+              ZAMAT-Control-Web-V0.1.2.zip \
               --target "$GITHUB_SHA" \
-              --title "ZAMAT Control V0.1.0" \
-              --notes "Primera versión oficial de ZAMAT Control. Incluye la aplicación web y un APK Android instalable conectado a la misma base de datos Supabase en tiempo real."
+              --title "ZAMAT Control V0.1.2" \
+              --notes "Mejora de visualización móvil: respeta la barra de estado, notch/cámara y la barra o botones de navegación inferiores. Incluye web y APK Android conectados a Supabase en tiempo real."
           fi
