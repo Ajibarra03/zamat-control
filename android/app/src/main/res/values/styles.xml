@@ -8,5 +8,8 @@
         <item name="android:navigationBarColor">@color/zamat_forest_dark</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
+        <!-- V0.1.5: la página ocupa el área útil igual que en el navegador móvil.
+             Android mantiene la barra de estado y la navegación fuera del WebView. -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 </resources>
