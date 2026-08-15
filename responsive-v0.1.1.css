@@ -1,0 +1,101 @@
+/* ZAMAT Control V0.1.1 · Responsive móvil */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{min-width:0}
+img,svg,canvas,video{max-width:100%}
+.app-shell,.main-wrap,.content,.view,.panel,.table-panel,.dashboard-grid,.settings-grid,.product-grid,.cards-list{min-width:0;max-width:100%}
+.content{width:100%}
+.table-scroll,.inventory-table-scroll,.movement-table-scroll,.users-table-scroll,.order-board{max-width:100%;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.modal{max-height:calc(100dvh - 16px);overflow:auto;margin:auto}
+.modal form{max-height:calc(100dvh - 16px);overflow-y:auto;overscroll-behavior:contain}
+.auth-screen{min-height:100dvh;width:100%;padding:max(16px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.auth-card{max-width:100%;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
+.sidebar-foot>small:last-child{font-size:0}
+.sidebar-foot>small:last-child::after{content:"Versión V0.1.1";font-size:12px}
+.sidebar-foot>span{font-size:0}
+.sidebar-foot>span::after{content:"Sincronización automática en la nube";font-size:12px}
+
+@media(max-width:780px){
+  body{font-size:15px}
+  input,select,textarea{font-size:16px;max-width:100%}
+  button,.btn,.nav-item{touch-action:manipulation}
+  .app-shell{width:100%;min-height:100dvh}
+  .sidebar{width:min(86vw,300px);height:100dvh;left:-100vw;padding-left:max(14px,env(safe-area-inset-left));padding-bottom:max(12px,env(safe-area-inset-bottom))}
+  .sidebar.open{left:0}
+  .overlay.show{width:100vw;height:100dvh}
+  .main-wrap{width:100%;max-width:100vw;overflow-x:hidden}
+  .topbar{width:100%;max-width:100vw;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+  .global-wordmark{width:min(54vw,220px);max-width:100%}
+  .content{width:100%;max-width:100vw;padding:16px 12px calc(34px + env(safe-area-inset-bottom))}
+  .view.active{width:100%;max-width:100%}
+  .hero-card,.home-daily-card,.panel,.table-panel,.product-card,.account-card{width:100%;max-width:100%}
+  .hero-card{padding:20px 18px;border-radius:18px}
+  .hero-card h2{font-size:clamp(24px,7.6vw,30px);overflow-wrap:anywhere}
+  .section-head{width:100%;gap:12px;margin-bottom:16px}
+  .section-head h2{font-size:clamp(27px,8vw,34px);line-height:1.08;overflow-wrap:anywhere}
+  .section-actions{width:100%;gap:8px}
+  .panel{padding:16px;border-radius:15px}
+  .panel-head,.subhead{align-items:flex-start;flex-wrap:wrap}
+  .kpi-grid,.mini-kpis{width:100%}
+  .kpi-card,.mini-kpis>div{min-width:0}
+  .toolbar,.catalog-toolbar{width:100%;padding:12px}
+  .toolbar>*,.catalog-toolbar>*{max-width:100%}
+  .table-panel{overflow:hidden}
+  .table-scroll,.inventory-table-scroll,.movement-table-scroll,.users-table-scroll{width:100%;overflow-x:auto;overflow-y:auto}
+  table{width:max-content;min-width:680px;max-width:none}
+  th,td{padding:11px 12px}
+  .segmented{display:flex;width:100%;max-width:100%;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  .segmented button{flex:0 0 auto}
+  .order-board{width:100%;grid-template-columns:repeat(5,minmax(78vw,1fr));overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:10px}
+  .order-column{min-width:78vw;scroll-snap-align:start}
+  .order-card select,.order-control select{max-width:100%;min-width:0}
+  .modal{width:calc(100vw - 16px);border-radius:16px}
+  .modal form{padding:18px 14px}
+  .modal-head h3{font-size:clamp(23px,7vw,28px)}
+  .modal-actions{position:sticky;bottom:-18px;background:#fff;margin-left:-14px;margin-right:-14px;padding:14px;z-index:3}
+  .modal-actions .btn{flex:1;min-width:0}
+  .toast{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));text-align:center}
+  .auth-card{width:min(100%,440px);padding:20px 16px;border-radius:20px}
+  .auth-brand{margin-bottom:18px}
+  .auth-brand>img:first-child{width:74px;height:74px}
+  .auth-wordmark{width:min(180px,58vw)}
+  .auth-card h1{font-size:clamp(26px,8vw,31px)}
+  .auth-copy{font-size:15px}
+  .home-daily-card{min-height:auto;padding:28px 18px;border-radius:20px}
+  .home-logo-panel{width:min(64vw,260px)}
+  .home-message-panel blockquote{font-size:clamp(27px,8.5vw,42px)}
+  .user-profile-card,.user-profile-main,.locked-brand{min-width:0}
+  .backup-actions .btn,.backup-actions .file-btn{flex:1 1 150px}
+}
+
+@media(max-width:520px){
+  .section-actions,.inventory-actions{display:grid!important;grid-template-columns:1fr!important;width:100%}
+  .section-actions .btn,.inventory-actions .btn{width:100%}
+  .kpi-grid,.mini-kpis{grid-template-columns:1fr}
+  .product-meta{grid-template-columns:1fr}
+  .list-row{align-items:flex-start;flex-wrap:wrap}
+  .list-row>.amount{margin-left:auto}
+  .order-board{grid-template-columns:repeat(5,minmax(86vw,1fr))}
+  .order-column{min-width:86vw}
+  .topbar{grid-template-columns:40px minmax(0,1fr) 40px;gap:5px}
+  .global-wordmark{width:min(52vw,185px);height:52px}
+  .global-wordmark img{max-height:52px}
+  .top-logo{width:36px;height:36px}
+  .icon-btn.mobile-only{width:36px;height:36px;padding:5px}
+}
+
+@media(max-width:360px){
+  .content{padding-left:9px;padding-right:9px}
+  .panel{padding:13px}
+  .global-wordmark{width:48vw}
+  .auth-card{padding-left:13px;padding-right:13px}
+  .modal-actions{flex-direction:column}
+  .modal-actions .btn{width:100%}
+}
+
+@media(max-width:780px) and (orientation:landscape){
+  .auth-screen{place-items:start center;padding-top:10px;padding-bottom:10px}
+  .auth-card{max-height:calc(100dvh - 20px)}
+  .auth-brand>img:first-child{width:58px;height:58px;margin-bottom:4px}
+  .auth-brand{margin-bottom:12px}
+  .home-logo-panel{width:min(34vw,210px)}
+}
