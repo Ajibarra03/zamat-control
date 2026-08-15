@@ -1,4 +1,4 @@
-# ZAMAT Control — V0.1.1
+# ZAMAT Control — V0.1.2
 
 Sistema de gestión para ZAMAT.
 
@@ -7,14 +7,14 @@ Sistema de gestión para ZAMAT.
 - Datos, autenticación, permisos y tiempo real en Supabase.
 - Instalable como PWA y como APK Android.
 
-## V0.1.1
+## V0.1.2
 - La interfaz se adapta automáticamente al ancho y alto de teléfonos y pantallas pequeñas.
+- Respeta el área superior ocupada por hora, batería, señal, cámara/notch o recortes de pantalla.
+- Respeta el área inferior ocupada por la barra de gestos o los botones de navegación Android.
 - Mejoras para orientación vertical y horizontal.
 - Panel lateral adaptativo y desplazable.
 - Tablas y tableros se desplazan dentro de su contenedor sin ampliar toda la página.
-- Ventanas emergentes ajustadas al alto disponible.
-- Campos con tamaño adecuado para evitar el zoom automático en móviles.
-- Soporte para áreas seguras de teléfonos con notch.
+- Ventanas emergentes ajustadas al área realmente visible.
 
 ## Seguridad
 Las claves secretas de Supabase no forman parte del frontend. Las operaciones administrativas sensibles se ejecutan mediante Edge Functions.
