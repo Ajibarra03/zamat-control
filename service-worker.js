@@ -1,6 +1,6 @@
-const CACHE = 'zamat-v0.1.0';
+const CACHE = 'zamat-v0.1.1';
 const APP_SHELL = [
-  './', './index.html', './app.css', './app.js', './manifest.webmanifest',
+  './', './index.html', './app.css', './responsive-v0.1.1.css', './app.js', './manifest.webmanifest',
   './assets/zamat-logo.png', './assets/zamat-wordmark.png', './assets/zamat-wordmark-sidebar.png',
   './assets/icon-192.png', './assets/icon-512.png'
 ];
