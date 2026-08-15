@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#172e26" />
+  <meta name="application-name" content="ZAMAT" />
+  <title>ZAMAT · Control del emprendimiento</title>
+  <link rel="icon" type="image/png" href="assets/zamat-logo.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <section class="auth-screen" id="authScreen" aria-label="Acceso a ZAMAT">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <img src="assets/zamat-logo.png" alt="Logo ZAMAT" />
+        <img class="auth-wordmark" src="assets/zamat-wordmark-sidebar.png" alt="ZAMAT" />
+        <p>Gestión del negocio</p>
+      </div>
+
+      <div id="authSetupPanel" hidden style="display:none!important">
+        <p class="eyebrow">Primer acceso</p>
+        <h1>Crear usuario superadministrador</h1>
+        <p class="auth-copy">Configurá la cuenta principal con acceso total para proteger y administrar la página.</p>
+        <form id="setupAdminForm" class="auth-form">
+          <label>Nombre de la persona<input name="fullName" id="setupAdminFullName" autocomplete="name" maxlength="80" required><small class="field-help">Ingresá nombre y apellido.</small></label>
+          <label>Usuario<input name="username" id="setupAdminUsername" autocomplete="username" maxlength="40" value="Tripers" readonly required><small class="field-help">El usuario predeterminado del Superadministrador es Tripers.</small></label>
+          <label>Correo de recuperación<input name="email" type="email" autocomplete="email" required></label>
+          <label>Contraseña<input name="password" type="password" minlength="6" autocomplete="new-password" required></label>
+          <label>Confirmar contraseña<input name="confirmPassword" type="password" minlength="6" autocomplete="new-password" required></label>
+          <p class="field-error is-hidden" id="setupAdminError"></p>
+          <button class="btn btn-primary auth-primary" type="submit">Crear cuenta e ingresar</button>
+        </form>
+      </div>
+
+      <div id="authLoginPanel" hidden>
+        <p class="eyebrow">Acceso</p>
+        <h1>Iniciar sesión</h1>
+        <p class="auth-copy">Ingresá con tu usuario y contraseña para acceder a ZAMAT.</p>
+        <form id="loginForm" class="auth-form">
+          <label>Usuario<input name="username" autocomplete="username" required></label>
+          <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
+          <p class="field-error is-hidden" id="loginError"></p>
+          <button class="btn btn-primary auth-primary" type="submit">Ingresar</button>
+          <button class="auth-link" id="forgotPasswordBtn" type="button">Olvidé mi contraseña</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <div class="app-shell" id="appShell" hidden>
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-block">
+        <div class="brand-copy">
+          <img class="sidebar-wordmark" src="assets/zamat-wordmark-sidebar.png" alt="ZAMAT" />
+          <span>Gestión del negocio</span>
+        </div>
+      </div>
+
+      <nav class="nav" id="mainNav" aria-label="Navegación principal">
+        <button class="nav-item active" data-view="inicio"><span>✦</span> Inicio</button>
+        <button class="nav-item" data-view="resumen"><span>⌂</span> Resumen</button>
+        <button class="nav-item" data-view="inventario"><span>◫</span> Inventario</button>
+        <button class="nav-item" data-view="contabilidad"><span>◒</span> Finanzas</button>
+        <button class="nav-item" data-view="contactos"><span>♧</span> Clientes / Proveedores</button>
+        <button class="nav-item" data-view="productos"><span>◇</span> Catálogo</button>
+        <button class="nav-item" data-view="pedidos"><span>▤</span> Pedidos</button>
+        <button class="nav-item" data-view="configuracion"><span>⚙</span> Configuración</button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="sidebar-session">
+          <span class="sidebar-session-label">Sesión activa</span>
+          <strong id="sidebarUserName">—</strong>
+          <small id="sidebarUsername">—</small>
+          <small id="sidebarUserEmail">—</small>
+          <button class="sidebar-logout" id="logoutBtn" type="button">Cerrar sesión</button>
+        </div>
+        <span>Datos guardados en este dispositivo</span>
+        <small>Versión V0.1.0</small>
+      </div>
+    </aside>
+
+    <div class="main-wrap">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn mobile-only" id="menuBtn" aria-label="Abrir menú">☰</button>
+          <div class="topbar-title">
+            <p class="eyebrow" id="pageEyebrow">ZAMAT</p>
+            <h1 id="pageTitle">Inicio</h1>
+          </div>
+        </div>
+        <div class="global-wordmark" aria-label="Identidad ZAMAT">
+          <img src="assets/zamat-wordmark.png" alt="ZAMAT" />
+        </div>
+        <div class="top-actions">
+          <button class="top-logo" id="dailyMotivationBtn" type="button" title="Ver mensaje motivacional del día" aria-label="Ver mensaje motivacional del día">
+            <img src="assets/zamat-logo.png" alt="Logo ZAMAT" />
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="view active" id="view-inicio">
+          <div class="home-daily-card">
+            <div class="home-message-panel">
+              <p class="eyebrow light">Mensaje del día</p>
+              <blockquote id="homeDailyMotivation">Hoy es una nueva oportunidad para avanzar.</blockquote>
+              <p class="home-daily-date" id="homeDailyDate"></p>
+            </div>
+            <div class="home-logo-panel" aria-label="Logo ZAMAT">
+              <img src="assets/zamat-logo.png" alt="Logo ZAMAT" />
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-resumen">
+          <div class="hero-card">
+            <div>
+              <p class="eyebrow light">Panel general</p>
+              <h2>Todo lo importante de ZAMAT, en un solo lugar.</h2>
+              <p>Controlá ventas, costos, inventario, pedidos y cuentas sin perder de vista la ganancia real.</p>
+            </div>
+            <div class="hero-badge" aria-label="Logo ZAMAT"><img src="assets/zamat-logo.png" alt="Logo ZAMAT" /></div>
+          </div>
+
+          <div class="kpi-grid">
+            <article class="kpi-card"><span>Ingresos del mes</span><strong id="kpiIncome">$0</strong><small id="kpiIncomeCount">0 movimientos</small></article>
+            <article class="kpi-card"><span>Egresos del mes</span><strong id="kpiExpense">$0</strong><small id="kpiExpenseCount">0 movimientos</small></article>
+            <article class="kpi-card accent"><span>Resultado del mes</span><strong id="kpiProfit">$0</strong><small>Ingresos − egresos</small></article>
+            <article class="kpi-card"><span>Pedidos abiertos</span><strong id="kpiOrders">0</strong><small id="kpiPendingAmount">$0 por completar</small></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel">
+              <div class="panel-head"><div><p class="eyebrow">Flujo reciente</p><h3>Últimos movimientos</h3></div><button class="text-btn" data-go="contabilidad">Ver todo</button></div>
+              <div id="recentMovements" class="list-stack"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head"><div><p class="eyebrow">Inventario</p><h3>Stock para revisar</h3></div><button class="text-btn" data-go="inventario">Gestionar</button></div>
+              <div id="lowStockList" class="list-stack"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="view-inventario">
+          <div class="section-head"><div><p class="eyebrow">Existencias</p><h2>Inventario</h2><p>Controlá artículos listos para vender y materiales usados en la elaboración de joyas propias.</p></div><div class="section-actions inventory-actions"><button class="btn btn-primary" data-modal="inventoryModal">+ Nuevo artículo</button><button class="btn btn-primary" data-modal="materialModal">+ Nuevo material</button><button class="btn btn-primary" id="inventoryAdjustBtn">Modificar</button><button class="btn btn-primary" id="inventoryExportBtn">Imprimir</button></div></div>
+          <div class="mini-kpis">
+            <div><span>Artículos</span><strong id="invKinds">0</strong></div>
+            <div><span>Materiales</span><strong id="invMaterials">0</strong></div>
+            <div><span>Valor del inventario</span><strong id="invValue">$0</strong></div>
+            <div><span>Stock bajo</span><strong id="invLow">0</strong></div>
+          </div>
+          <div class="inventory-group-head"><div><p class="eyebrow">Productos comprados / listos</p><h3>Artículos</h3></div></div>
+          <article class="panel table-panel">
+            <div class="toolbar"><input class="search" id="inventorySearch" placeholder="Buscar artículos…"><select id="inventoryFilter"><option value="all">Todos</option><option value="low">Stock bajo</option></select></div>
+            <div class="table-scroll inventory-table-scroll"><table><thead><tr><th>Artículo</th><th>Categoría</th><th>Stock</th><th>Costo unitario</th><th>Valor</th><th>Estado</th><th></th></tr></thead><tbody id="inventoryBody"></tbody></table></div>
+          </article>
+
+          <div class="inventory-group-head material-group-head"><div><p class="eyebrow">Elaboración propia</p><h3>Materiales</h3><p>Perlas, cadenas, hilos, dijes y otros insumos utilizados para fabricar tus joyas.</p></div></div>
+          <article class="panel table-panel">
+            <div class="toolbar"><input class="search" id="materialSearch" placeholder="Buscar materiales…"><select id="materialFilter"><option value="all">Todos</option><option value="low">Stock bajo</option></select></div>
+            <div class="table-scroll inventory-table-scroll"><table><thead><tr><th>Material</th><th>Categoría</th><th>Cantidad</th><th>Costo / medida</th><th>Valor</th><th>Estado</th><th></th></tr></thead><tbody id="materialBody"></tbody></table></div>
+          </article>
+        </section>
+
+        <section class="view" id="view-contabilidad">
+          <div class="section-head"><div><p class="eyebrow">Control financiero</p><h2>Finanzas</h2><p>Ingresos y egresos provenientes de pedidos y movimientos registrados en Finanzas. El valor del inventario no se incluye.</p></div><div class="section-actions"><button class="btn btn-primary" data-modal="movementModal">+ Nuevo movimiento</button><button class="btn btn-primary" id="movementsExportBtn">Imprimir</button></div></div>
+          <div class="segmented" id="accountingTabs"><button class="active" data-tab="movimientos">Movimientos</button><button data-tab="cobrar">Por cobrar</button><button data-tab="pagar">Por pagar</button></div>
+          <div class="tab-panel active" data-tab-panel="movimientos">
+            <div class="mini-kpis"><div><span>Ingresos acumulados</span><strong id="accIncome">$0</strong></div><div><span>Egresos acumulados</span><strong id="accExpense">$0</strong></div><div><span>Balance</span><strong id="accBalance">$0</strong></div></div>
+            <article class="panel table-panel"><div class="toolbar"><input class="search" id="movementSearch" placeholder="Buscar por descripción, categoría, medio o fecha…"><input type="date" id="movementDateFilter" aria-label="Buscar movimientos por fecha" title="Buscar por fecha"><select id="movementTypeFilter"><option value="all">Todos</option><option value="ingreso">Ingresos</option><option value="egreso">Egresos</option></select></div><div class="table-scroll movement-table-scroll"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th>Medio de pago</th><th>Monto</th><th></th></tr></thead><tbody id="movementBody"></tbody></table></div></article>
+          </div>
+          <div class="tab-panel" data-tab-panel="cobrar"><div class="subhead"><h3>Cuentas por cobrar</h3><button class="btn btn-secondary" data-account="cobrar">+ Agregar cuenta</button></div><div class="cards-list" id="receivableList"></div></div>
+          <div class="tab-panel" data-tab-panel="pagar"><div class="subhead"><h3>Cuentas por pagar</h3><button class="btn btn-secondary" data-account="pagar">+ Agregar cuenta</button></div><div class="cards-list" id="payableList"></div></div>
+        </section>
+
+        <section class="view" id="view-contactos">
+          <div class="section-head"><div><p class="eyebrow">Relaciones</p><h2>Clientes / Proveedores</h2><p>Centralizá los datos de contacto y el tipo de relación comercial.</p></div><button class="btn btn-primary" data-modal="contactModal">+ Nuevo contacto</button></div>
+          <article class="panel table-panel"><div class="toolbar"><input class="search" id="contactSearch" placeholder="Buscar contacto…"><select id="contactFilter"><option value="all">Todos</option><option value="cliente">Clientes</option><option value="proveedor">Proveedores</option><option value="ambos">Ambos</option></select></div><div class="table-scroll"><table><thead><tr><th>Nombre</th><th>Tipo</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Notas</th><th></th></tr></thead><tbody id="contactBody"></tbody></table></div></article>
+        </section>
+
+        <section class="view" id="view-productos">
+          <div class="section-head"><div><p class="eyebrow">Productos</p><h2>Catálogo</h2><p>Calculá un precio sugerido desde el costo de compra, los materiales utilizados y el recargo deseado.</p></div><div class="section-actions"><button class="btn btn-primary" data-modal="productModal">+ Nuevo producto</button><button class="btn btn-primary" id="catalogExportBtn">Imprimir</button></div></div>
+          <div class="catalog-toolbar panel">
+            <input class="search" id="productSearch" placeholder="Buscar por producto o código…" aria-label="Buscar producto">
+            <select id="productCategoryFilter" aria-label="Filtrar catálogo por categoría"><option value="all">Todas las categorías</option></select>
+          </div>
+          <div class="pricing-note"><strong>Fórmula actual:</strong> Precio sugerido = (costo base + costos extra + materiales) × (1 + % de recargo).</div>
+          <div class="product-grid" id="productGrid"></div>
+        </section>
+
+        <section class="view" id="view-pedidos">
+          <div class="section-head"><div><p class="eyebrow">Ventas</p><h2>Pedidos</h2><p>Seguimiento desde la recepción hasta la entrega y el cobro.</p></div><button class="btn btn-primary" data-modal="orderModal">+ Nuevo pedido</button></div>
+          <div class="order-board" id="orderBoard"></div>
+        </section>
+
+        <section class="view" id="view-configuracion">
+          <div class="section-head"><div><p class="eyebrow">Acceso y seguridad</p><h2>Configuración</h2><p>Administrá tu cuenta y los usuarios con acceso a ZAMAT.</p></div></div>
+          <div class="settings-grid">
+            <article class="panel">
+              <h3>Mi usuario</h3>
+              <div class="user-profile-card">
+                <span class="settings-logo"><img src="assets/zamat-logo.png" alt="Logo ZAMAT" /></span>
+                <div class="user-profile-main">
+                  <span class="locked-label">Sesión actual</span>
+                  <strong id="currentUserName">—</strong>
+                  <small id="currentUsername">—</small>
+                  <small id="currentUserEmail">—</small>
+                </div>
+                <span class="badge income" id="currentUserStatus">Activo</span>
+              </div>
+              <div class="user-meta-grid">
+                <div><span>Tipo de cuenta</span><strong id="currentUserRole">—</strong></div>
+                <div><span>Último ingreso</span><strong id="currentUserLastLogin">—</strong></div>
+              </div>
+              <button class="btn btn-primary" id="editMyUserBtn" type="button">Editar mis datos</button>
+            </article>
+
+            <article class="panel users-panel" id="usersManagementPanel">
+              <div class="panel-head"><div><p class="eyebrow">Accesos</p><h3>Usuarios</h3></div><button class="btn btn-primary" id="newUserBtn" type="button">+ Nuevo usuario</button></div>
+              <p class="muted" id="usersManagementHelp">Creá usuarios y revisá si están activos, inactivos y cuándo ingresaron por última vez.</p>
+              <div class="table-scroll users-table-scroll"><table class="users-table"><thead><tr><th>Nombre</th><th>Usuario</th><th>Tipo</th><th>Correo de recuperación</th><th>Estado</th><th>Último ingreso</th><th></th></tr></thead><tbody id="usersBody"></tbody></table></div>
+            </article>
+
+            <article class="panel">
+              <h3>Datos en la nube</h3>
+              <p class="muted">La información de ZAMAT se sincroniza automáticamente con Supabase y se actualiza en tiempo real entre las sesiones autorizadas.</p>
+              <div class="backup-actions"><button class="btn btn-secondary" id="exportBtn">Exportar copia</button></div>
+              <div class="privacy-note">Los datos del negocio y las cuentas se almacenan en Supabase. El navegador mantiene únicamente la sesión de acceso necesaria para utilizar la aplicación.</div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog class="motivation-dialog" id="motivationModal" aria-labelledby="motivationTitle">
+    <div class="motivation-card">
+      <button class="motivation-close" id="motivationClose" type="button" aria-label="Cerrar mensaje">×</button>
+      <div class="motivation-mark" aria-hidden="true">✦</div>
+      <p class="eyebrow">Mensaje del día</p>
+      <h3 id="motivationTitle">Un impulso para hoy</h3>
+      <blockquote id="motivationText"></blockquote>
+      <p class="motivation-date" id="motivationDate"></p>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+  <div class="overlay" id="overlay"></div>
+
+  <dialog class="modal report-export-modal" id="reportExportModal">
+    <div class="report-export-card">
+      <div class="modal-head"><div><p class="eyebrow">ZAMAT</p><h3 id="reportExportTitle">Exportar</h3></div><button class="icon-btn" id="reportExportClose" type="button">×</button></div>
+      <p class="muted" id="reportExportDescription">Elegí cómo querés obtener la información.</p>
+      <div class="report-export-actions">
+        <button class="report-choice" id="reportPrintBtn" type="button"><strong>Imprimir / Guardar PDF</strong><span>Abre una versión preparada para impresión. También podés guardarla como PDF desde el navegador.</span></button>
+        <button class="report-choice" id="reportCsvBtn" type="button"><strong>Descargar CSV</strong><span>Descarga los datos en un archivo compatible con Excel y otras hojas de cálculo.</span></button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="modal" id="inventoryModal"><form method="dialog" id="inventoryForm"><div class="modal-head"><div><p class="eyebrow">Inventario</p><h3>Nuevo artículo</h3></div><button class="icon-btn"  type="button" value="cancel">×</button></div><div class="form-grid two"><label>Artículo<input name="name" required></label><label>Categoría<select name="category" id="inventoryCategory" required></select></label><label class="full is-hidden" id="inventoryNewCategoryWrap">Nueva categoría<input name="newCategory" id="inventoryNewCategory" maxlength="60" placeholder="Escribí el nombre de la nueva categoría"></label><label>Stock actual<input name="stock" type="number" min="0" step="1" required></label><label>Stock mínimo<input name="minStock" type="number" min="0" step="1"></label><label>Costo unitario<input name="unitCost" type="number" min="0" step="0.01" required></label><label>Proveedor<select name="supplier" id="inventorySupplier"></select><small class="field-help">Solo aparecen contactos registrados como proveedor.</small></label></div><div class="modal-actions"><button class="btn btn-secondary"  type="button" value="cancel">Cancelar</button><button class="btn btn-primary" value="default">Guardar</button></div></form></dialog>
+
+  <dialog class="modal" id="materialModal"><form method="dialog" id="materialForm"><div class="modal-head"><div><p class="eyebrow">Inventario · Elaboración propia</p><h3>Nuevo material</h3></div><button class="icon-btn"  type="button" value="cancel">×</button></div><div class="form-grid two"><label>Material<input name="name" required placeholder="Ej.: Perla blanca 8 mm"></label><label>Categoría<select name="category" id="materialCategory" required></select></label><label class="full is-hidden" id="materialNewCategoryWrap">Nueva categoría<input name="newCategory" id="materialNewCategory" maxlength="60" placeholder="Escribí el nombre de la nueva categoría"></label><label>Unidad de medida<select name="unit" required><option value="unidad">Unidad</option><option value="par">Par</option><option value="metro">Metro</option><option value="centímetro">Centímetro</option><option value="gramo">Gramo</option><option value="kilogramo">Kilogramo</option><option value="rollo">Rollo</option><option value="paquete">Paquete</option></select></label><label>Cantidad actual<input name="quantity" type="number" min="0" step="0.01" required></label><label>Cantidad mínima<input name="minQuantity" type="number" min="0" step="0.01"></label><label>Costo por unidad de medida<input name="unitCost" type="number" min="0" step="0.01" required><small class="field-help">Ej.: si la medida es metro, indicá el costo de 1 metro.</small></label><label>Proveedor<select name="supplier" id="materialSupplier"></select><small class="field-help">Solo aparecen contactos registrados como proveedor.</small></label></div><div class="modal-actions"><button class="btn btn-secondary"  type="button" value="cancel">Cancelar</button><button class="btn btn-primary" value="default">Guardar material</button></div></form></dialog>
+
+  <dialog class="modal" id="inventoryAdjustModal"><form method="dialog" id="inventoryAdjustForm"><div class="modal-head"><div><p class="eyebrow">Inventario</p><h3>Modificar existencias</h3></div><button class="icon-btn"  type="button" value="cancel">×</button></div><div class="form-grid two"><label class="full">Artículo o material<select name="target" id="inventoryAdjustTarget" required></select><small class="field-help">Seleccioná el registro que querés corregir.</small></label><label>Existencia actual<input id="inventoryAdjustCurrent" type="text" value="—" readonly></label><label>Tipo de ajuste<select name="direction" id="inventoryAdjustDirection" required><option value="increase">Aumentar (+)</option><option value="decrease">Disminuir (−)</option></select></label><label>Cantidad<input name="amount" id="inventoryAdjustAmount" type="number" min="0.01" step="0.01" required></label><label>Motivo<select name="reason" required><option value="Corrección de conteo">Corrección de conteo</option><option value="Entrada no registrada">Entrada no registrada</option><option value="Salida no registrada">Salida no registrada</option><option value="Pérdida / daño">Pérdida / daño</option><option value="Uso interno / elaboración">Uso interno / elaboración</option><option value="Otro">Otro</option></select></label><label class="full">Nota <span class="optional-label">(opcional)</span><input name="note" maxlength="160" placeholder="Ej.: se dañaron 2 unidades durante el traslado"></label></div><div class="adjust-preview" id="inventoryAdjustPreview"><span>Nueva existencia</span><strong>—</strong></div><div class="modal-actions"><button class="btn btn-secondary"  type="button" value="cancel">Cancelar</button><button class="btn btn-primary" value="default">Guardar ajuste</button></div></form></dialog>
+
+  <dialog class="modal" id="movementModal"><form method="dialog" id="movementForm"><div class="modal-head"><div><p class="eyebrow">Finanzas</p><h3 id="movementModalTitle">Nuevo movimiento</h3></div><button class="icon-btn"  type="button" value="cancel">×</button></div><div class="form-grid two"><label>Tipo<select name="type"><option value="ingreso">Ingreso</option><option value="egreso">Egreso</option></select></label><label>Fecha<input name="date" type="date" required></label><label>Categoría<select name="category" id="movementCategory" required></select></label><label>Monto<input name="amount" type="number" min="0" step="0.01" required></label><label class="full is-hidden" id="movementNewCategoryWrap">Nueva categoría<input name="newCategory" id="movementNewCategory" maxlength="60" placeholder="Escribí el nombre de la nueva categoría"></label><label>Medio de pago<select name="paymentMethod" required><option value="Efectivo">Efectivo</option><option value="Nequi">Nequi</option><option value="DaviPlata">DaviPlata</option><option value="dale!">dale!</option><option value="MOVii">MOVii</option><option value="Transferencia bancaria">Transferencia bancaria</option><option value="PSE">PSE</option><option value="Bre-B / QR interoperable">Bre-B / QR interoperable</option><option value="Tarjeta débito/crédito">Tarjeta débito/crédito</option><option value="Otro">Otro</option></select></label><label class="full">Descripción<input name="description" required></label></div><div class="modal-actions"><button class="btn btn-secondary"  type="button" value="cancel">Cancelar</button><button class="btn btn-primary" value="default">Guardar</button></div></form></dialog>
+
+  <dialog class="modal" id="contactModal"><form method="dialog" id="contactForm"><input type="hidden" name="contactId" id="contactId"><div class="modal-head"><div><p class="eyebrow">Contactos</p><h3 id="contactModalTitle">Nuevo contacto</h3></div><button class="icon-btn"  type="button" value="cancel">×</button></div><div class="form-grid two"><label>Nombre<input name="name" required></label><label>Tipo<select name="type" required><option value="" selected disabled>Seleccionar tipo…</option><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="ambos">Cliente y proveedor</option></select></label><label>Teléfono <span class="optional-label">(opcional)</span><input name="phone" type="tel"></label><label>Email <span class="optional-label">(opcional)</span><input name="email" type="email"></label><label class="full">Dirección <span class="optional-label">(opcional)</span><input name="address" autocomplete="street-address" placeholder="Ej.: Calle, barrio, ciudad"></label><label class="full">Notas <span class="optional-label">(opcional)</span><textarea name="notes" rows="3"></textarea></label></div><div class="modal-actions"><button class="btn btn-secondary"  type="button" value="cancel">Cancelar</button><button class="btn btn-primary" id="contactSaveBtn" value="default">Guardar</button></div></form></dialog>
+
+  <dialog class="modal" id="productModal"><form method="dialog" id="productForm"><input type="hidden" name="productId" id="productId"><div class="modal-head"><div><p class="eyebrow">Catálogo</p><h3 id="productModalTitle">Nuevo producto</h3></div><button class="icon-btn"  type="button" value="cancel">×</button></div><div class="form-grid two"><label>Producto<input name="name" required></label><label>Categoría<select name="category" id="productCategory" required></select></label><label class="full is-hidden" id="productNewCategoryWrap">Nueva categoría<input name="newCategory" id="productNewCategory" maxlength="60" placeholder="Escribí el nombre de la nueva categoría"></label><div class="full custom-materials is-hidden" id="productMaterialsWrap"><div class="custom-materials-head"><div><strong>Materiales utilizados</strong><small>Seleccioná los materiales registrados en Inventario e indicá cuánto utiliza una unidad de este producto.</small></div><span class="badge gold" id="productMaterialsCost">$0</span></div><div id="productMaterialsList" class="materials-picker"></div></div><label>Costo base / compra<input name="purchaseCost" type="number" min="0" step="0.01" required value="0"><small class="field-help">Para una pieza elaborada por vos, podés dejar este valor en 0 si el costo está compuesto solo por materiales.</small></label><label>Costos extra por unidad<input name="extraCost" type="number" min="0" step="0.01" value="0"></label><label>Recargo (%)<input name="markup" type="number" min="0" step="1"></label><label id="productSkuModeWrap">Tipo de código<select name="skuMode" id="productSkuMode"><option value="auto">Generar código automático</option><option value="manual">Ingresar código manual</option></select></label><label>SKU / Código<input name="sku" id="productSku" autocomplete="off" required><small class="field-help" id="productSkuHelp">Se generará automáticamente un código único.</small><small class="field-error is-hidden" id="productSkuError"></small></label></div><div class="calc-preview"><div>Costo de materiales: <strong id="productMaterialCostPreview">$0</strong></div><div>Precio sugerido: <strong id="productPricePreview">$0</strong></div></div><div class="modal-actions"><button class="btn btn-secondary"  type="button" value="cancel">Cancelar</button><button class="btn btn-primary" id="productSaveBtn" value="default">Guardar</button></div></form></dialog>
+
+  <dialog class="modal order-modal" id="orderModal"><form method="dialog" id="orderForm"><div class="modal-head"><div><p class="eyebrow">Pedidos</p><h3>Nuevo pedido</h3></div><button class="icon-btn"  type="button" value="cancel">×</button></div><div class="form-grid two"><label>N.º pedido<input name="code" id="orderCode" readonly required><small class="field-help">Se genera automáticamente y es independiente del código de los productos.</small></label><label>Cliente<select name="customerId" id="orderCustomer" required></select><small class="field-help">Solo aparecen contactos registrados como cliente.</small></label><label>Fecha<input name="date" type="date" required></label><label>Estado inicial<input value="Pendiente" readonly><small class="field-help">Después podrás cambiar el estado desde el detalle del pedido.</small></label><div class="full order-products-field"><div class="order-products-head"><div><strong>Productos del pedido</strong><small>Seleccioná uno o más productos del Catálogo e indicá la cantidad.</small></div><strong id="orderTotalPreview">$0</strong></div><div id="orderProductsList" class="order-products-list"></div><small class="field-error is-hidden" id="orderProductsError">Seleccioná al menos un producto.</small></div><label>Estado del pago<select name="payment" id="orderPayment"><option value="pendiente">Pendiente</option><option value="parcial">Parcial</option><option value="pagado">Pagado</option></select></label><label>Medio de pago<select name="paymentMethod"><option value="Por definir">Por definir</option><option value="Efectivo">Efectivo</option><option value="Nequi">Nequi</option><option value="DaviPlata">DaviPlata</option><option value="dale!">dale!</option><option value="MOVii">MOVii</option><option value="Transferencia bancaria">Transferencia bancaria</option><option value="PSE">PSE</option><option value="Bre-B / QR interoperable">Bre-B / QR interoperable</option><option value="Tarjeta débito/crédito">Tarjeta débito/crédito</option><option value="Otro">Otro</option></select></label><div class="full order-partial-payment is-hidden" id="orderPartialPaymentBox"><div class="order-payment-head"><div><strong>Pago parcial</strong><small>Ingresá cuánto abonó el cliente para calcular automáticamente el saldo pendiente.</small></div><strong id="orderPartialPendingPreview">Pendiente: $0</strong></div><label>Monto abonado<input name="paidAmount" id="orderPaidAmount" type="number" min="0.01" step="0.01" placeholder="0"></label><div class="order-payment-breakdown"><span>Total del pedido <strong id="orderPartialTotalPreview">$0</strong></span><span>Abonado <strong id="orderPartialPaidPreview">$0</strong></span><span>Por pagar <strong id="orderPartialRemainingPreview">$0</strong></span></div></div></div><div class="modal-actions"><button class="btn btn-secondary"  type="button" value="cancel">Cancelar</button><button class="btn btn-primary" id="orderSaveBtn" value="default">Guardar pedido</button></div></form></dialog>
+
+  <dialog class="modal order-details-modal" id="orderDetailsModal"><form method="dialog" id="orderDetailsForm"><input type="hidden" name="orderId" id="orderDetailsId"><div class="modal-head"><div><p class="eyebrow">Detalle del pedido</p><h3 id="orderDetailsTitle">Pedido</h3></div><button class="icon-btn"  type="button" value="cancel">×</button></div><div class="order-detail-summary"><div><span>Cliente</span><strong id="orderDetailsCustomer">—</strong></div><div><span>Fecha</span><strong id="orderDetailsDate">—</strong></div><div><span>Total</span><strong id="orderDetailsTotal">$0</strong></div></div><div class="order-detail-products"><h4>Productos</h4><div id="orderDetailsProducts"></div></div><div class="form-grid two"><label>Estado<select name="status" id="orderDetailsStatus" required></select><small class="field-help" id="orderStatusHelp"></small></label><label>Estado del pago<select name="payment" id="orderDetailsPayment" required><option value="pendiente">Pendiente</option><option value="parcial">Parcial</option><option value="pagado">Pagado</option></select></label><label class="full">Medio de pago<select name="paymentMethod" id="orderDetailsPaymentMethod"><option value="Por definir">Por definir</option><option value="Efectivo">Efectivo</option><option value="Nequi">Nequi</option><option value="DaviPlata">DaviPlata</option><option value="dale!">dale!</option><option value="MOVii">MOVii</option><option value="Transferencia bancaria">Transferencia bancaria</option><option value="PSE">PSE</option><option value="Bre-B / QR interoperable">Bre-B / QR interoperable</option><option value="Tarjeta débito/crédito">Tarjeta débito/crédito</option><option value="Otro">Otro</option></select></label><div class="full order-partial-payment is-hidden" id="orderDetailsPartialPaymentBox"><div class="order-payment-head"><div><strong>Pago parcial</strong><small>Actualizá el monto abonado para conocer el saldo pendiente del cliente.</small></div><strong id="orderDetailsPendingPreview">Pendiente: $0</strong></div><label>Monto abonado<input name="paidAmount" id="orderDetailsPaidAmount" type="number" min="0.01" step="0.01" placeholder="0"></label><div class="order-payment-breakdown"><span>Total del pedido <strong id="orderDetailsPartialTotalPreview">$0</strong></span><span>Abonado <strong id="orderDetailsPartialPaidPreview">$0</strong></span><span>Por pagar <strong id="orderDetailsPartialRemainingPreview">$0</strong></span></div></div><div class="full order-refund-box is-hidden" id="orderRefundBox"><div class="order-refund-head"><div><strong>Devolución del pago</strong><small>Al guardar un pedido Devuelto, este monto genera automáticamente un egreso en Finanzas.</small></div><strong id="orderRefundPreview">$0</strong></div><div class="form-grid two order-refund-fields"><label>Tipo de devolución<select name="refundType" id="orderRefundType"><option value="completa">Completa</option><option value="parcial">Parcial</option></select></label><label>Monto a devolver<input name="refundAmount" id="orderRefundAmount" type="number" min="0.01" step="0.01"></label></div></div></div><div class="order-delete-note" id="orderDeleteNote"></div><div class="modal-actions order-detail-actions"><button class="btn btn-danger" id="orderDeleteBtn" type="button">Eliminar pedido</button><span class="order-actions-spacer"></span><button class="btn btn-secondary"  type="button" value="cancel">Cerrar</button><button class="btn btn-primary" value="default">Guardar cambios</button></div></form></dialog>
+
+  <dialog class="modal" id="accountModal"><form method="dialog" id="accountForm"><input type="hidden" name="kind" id="accountKind"><div class="modal-head"><div><p class="eyebrow">Finanzas</p><h3 id="accountModalTitle">Nueva cuenta</h3></div><button class="icon-btn"  type="button" value="cancel">×</button></div><div class="form-grid two"><label>Persona / Empresa<input name="party" required></label><label>Vencimiento<input name="dueDate" type="date" required></label><label>Monto<input name="amount" type="number" min="0" step="0.01" required></label><label>Concepto<input name="concept" required></label></div><div class="modal-actions"><button class="btn btn-secondary"  type="button" value="cancel">Cancelar</button><button class="btn btn-primary" value="default">Guardar</button></div></form></dialog>
+
+  <dialog class="modal" id="newUserModal"><form method="dialog" id="newUserForm"><div class="modal-head"><div><p class="eyebrow">Usuarios</p><h3>Nuevo usuario</h3></div><button class="icon-btn" type="button" value="cancel">×</button></div><div class="form-grid two"><label>Nombre de la persona<input name="fullName" id="newUserFullName" maxlength="80" autocomplete="off" required><small class="field-help">Ingresá nombre y apellido.</small></label><label>Usuario<input name="username" id="newUserUsername" maxlength="40" autocomplete="off" readonly required><small class="field-help">Se genera automáticamente: 2 primeras letras del apellido + punto + primer nombre.</small></label><label>Correo de recuperación<input name="email" type="email" autocomplete="off" required></label><label>Tipo de cuenta<select name="role" id="newUserRole" required><option value="Usuario">Usuario</option><option value="Administrador">Administrador</option><option value="Superadministrador">Superadministrador</option></select><small class="field-help" id="newUserRoleHelp"></small></label><label>Contraseña<input name="password" type="password" minlength="6" autocomplete="new-password" required></label><label>Confirmar contraseña<input name="confirmPassword" type="password" minlength="6" autocomplete="new-password" required></label><p class="field-error is-hidden full" id="newUserError"></p></div><div class="modal-actions"><button class="btn btn-secondary" type="button" value="cancel">Cancelar</button><button class="btn btn-primary" id="newUserSaveBtn" type="submit">Crear usuario</button></div></form></dialog>
+
+  <dialog class="modal" id="adminPasswordResetModal"><form method="dialog" id="adminPasswordResetForm"><input type="hidden" name="userId" id="adminPasswordResetUserId"><div class="modal-head"><div><p class="eyebrow">Superadministrador</p><h3>Resetear contraseña</h3></div><button class="icon-btn" type="button" value="cancel">×</button></div><p class="muted">Definí una nueva contraseña para <strong id="adminPasswordResetUserName">este usuario</strong>.</p><div class="form-grid"><label>Nueva contraseña<input name="password" type="password" minlength="6" autocomplete="new-password" required></label><label>Confirmar contraseña<input name="confirmPassword" type="password" minlength="6" autocomplete="new-password" required></label><p class="field-error is-hidden" id="adminPasswordResetError"></p></div><div class="modal-actions"><button class="btn btn-secondary" type="button" value="cancel">Cancelar</button><button class="btn btn-primary" type="submit">Guardar nueva contraseña</button></div></form></dialog>
+
+  <dialog class="modal" id="profileModal"><form method="dialog" id="profileForm"><div class="modal-head"><div><p class="eyebrow">Mi usuario</p><h3>Editar mis datos</h3></div><button class="icon-btn" type="button" value="cancel">×</button></div><div class="form-grid"><label>Nombre de la persona<input name="fullName" id="profileFullName" maxlength="80" required><small class="field-help">Ingresá nombre y apellido.</small></label><label>Usuario<input name="username" id="profileUsername" maxlength="40" readonly required><small class="field-help" id="profileUsernameHelp">El usuario se genera automáticamente a partir del nombre.</small></label><label>Correo de recuperación<input name="email" id="profileEmail" type="email" required></label><label>Nueva contraseña (opcional)<input name="password" type="password" minlength="6" autocomplete="new-password"><small class="field-help">Dejala vacía para conservar la contraseña actual.</small></label><label>Confirmar nueva contraseña<input name="confirmPassword" type="password" minlength="6" autocomplete="new-password"></label><p class="field-error is-hidden" id="profileError"></p></div><div class="modal-actions"><button class="btn btn-secondary" type="button" value="cancel">Cancelar</button><button class="btn btn-primary" type="submit">Guardar cambios</button></div></form></dialog>
+
+  <dialog class="modal recovery-modal" id="recoveryModal"><form method="dialog" id="recoveryForm"><div class="modal-head"><div><p class="eyebrow">Recuperación</p><h3>Recuperar contraseña</h3></div><button class="icon-btn" type="button" value="cancel">×</button></div><p class="muted">Ingresá tu usuario y el correo de recuperación registrado. Si coinciden, recibirás un enlace para crear una nueva contraseña.</p><div class="form-grid"><label>Usuario<input name="username" autocomplete="username" required></label><label>Correo de recuperación<input name="email" type="email" autocomplete="email" required></label><p class="field-error is-hidden" id="recoveryError"></p></div><div class="modal-actions"><button class="btn btn-secondary" type="button" value="cancel">Cancelar</button><button class="btn btn-primary" type="submit">Enviar enlace</button></div></form></dialog>
+
+  <dialog class="modal recovery-modal" id="recoveryPasswordModal"><form method="dialog" id="recoveryPasswordForm"><div class="modal-head"><div><p class="eyebrow">Recuperación</p><h3>Crear nueva contraseña</h3></div><button class="icon-btn" type="button" value="cancel">×</button></div><p class="muted">El enlace de recuperación fue validado. Definí ahora tu nueva contraseña.</p><div class="form-grid"><label>Nueva contraseña<input name="password" type="password" minlength="6" autocomplete="new-password" required></label><label>Confirmar contraseña<input name="confirmPassword" type="password" minlength="6" autocomplete="new-password" required></label><p class="field-error is-hidden" id="recoveryPasswordError"></p></div><div class="modal-actions"><button class="btn btn-secondary" type="button" value="cancel">Cancelar</button><button class="btn btn-primary" type="submit">Guardar nueva contraseña</button></div></form></dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>

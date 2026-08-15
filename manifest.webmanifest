@@ -1,0 +1,14 @@
+{
+  "name": "ZAMAT Control",
+  "short_name": "ZAMAT",
+  "description": "Gestión de inventario, catálogo, pedidos, clientes y finanzas de ZAMAT.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#172e26",
+  "theme_color": "#172e26",
+  "icons": [
+    {"src":"assets/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"assets/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}
