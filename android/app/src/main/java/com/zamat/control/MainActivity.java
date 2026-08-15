@@ -11,7 +11,6 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowInsets;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.SafeBrowsingResponse;
@@ -28,11 +27,6 @@ public class MainActivity extends Activity {
     private static final String APP_HOST = "ajibarra03.github.io";
     private WebView webView;
 
-    private int dp(int value) {
-        float density = getResources().getDisplayMetrics().density;
-        return Math.round(value * density);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,40 +37,16 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        webView.setBackgroundColor(Color.rgb(14, 36, 28));
+        webView.setBackgroundColor(Color.rgb(247, 244, 237));
 
-        // La APK reserva físicamente las barras del sistema. El CSS móvil ya no
-        // duplica este espacio, por lo que el encabezado comienza justo debajo
-        // de la barra de estado y el panel lateral queda a la misma altura visual.
-        webView.setOnApplyWindowInsetsListener((view, insets) -> {
-            int left;
-            int top;
-            int right;
-            int bottom;
-
-            if (android.os.Build.VERSION.SDK_INT >= 30) {
-                android.graphics.Insets bars = insets.getInsets(
-                    WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout()
-                );
-                left = bars.left;
-                top = bars.top;
-                right = bars.right;
-                bottom = bars.bottom;
-            } else {
-                left = insets.getSystemWindowInsetLeft();
-                top = insets.getSystemWindowInsetTop();
-                right = insets.getSystemWindowInsetRight();
-                bottom = insets.getSystemWindowInsetBottom();
-            }
-
-            top = Math.max(top, dp(24));
-            bottom = Math.max(bottom, dp(20));
-            view.setPadding(left, top, right, bottom);
-            return insets;
-        });
-
+        /*
+         * V0.1.5
+         * No agregamos padding manual por status bar, notch ni navegación.
+         * El tema Android deja las barras del sistema fuera del área útil de la app,
+         * igual que cuando ZAMAT se abre en un navegador móvil. Así el WebView recibe
+         * exactamente el viewport disponible y el mismo CSS responsive de la web.
+         */
         setContentView(webView);
-        webView.requestApplyInsets();
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -86,7 +56,13 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(false);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setUserAgentString(settings.getUserAgentString() + " ZAMATAndroid/0.1.4");
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(false);
+        settings.setTextZoom(100);
+        settings.setSupportZoom(false);
+        settings.setBuiltInZoomControls(false);
+        settings.setDisplayZoomControls(false);
+        settings.setUserAgentString(settings.getUserAgentString() + " ZAMATAndroid/0.1.5");
 
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
