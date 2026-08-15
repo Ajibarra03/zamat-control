@@ -1,4 +1,4 @@
-name: ZAMAT Android V0.1.4
+name: ZAMAT Android V0.1.5
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
     paths:
       - 'android/**'
       - 'app.css'
-      - 'responsive-v0.1.4.css'
+      - 'responsive-v0.1.5.css'
       - 'service-worker.js'
       - 'index.html'
       - '.github/workflows/android-release.yml'
@@ -44,20 +44,20 @@ jobs:
 
       - name: Prepare release files
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk ZAMAT-Control-V0.1.4.apk
-          zip -r ZAMAT-Control-Web-V0.1.4.zip index.html app.css responsive-v0.1.4.css app.js manifest.webmanifest service-worker.js assets README.md
+          cp android/app/build/outputs/apk/debug/app-debug.apk ZAMAT-Control-V0.1.5.apk
+          zip -r ZAMAT-Control-Web-V0.1.5.zip index.html app.css responsive-v0.1.5.css app.js manifest.webmanifest service-worker.js assets README.md
 
-      - name: Create or update GitHub Release V0.1.4
+      - name: Create or update GitHub Release V0.1.5
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view V0.1.4 >/dev/null 2>&1; then
-            gh release upload V0.1.4 ZAMAT-Control-V0.1.4.apk ZAMAT-Control-Web-V0.1.4.zip --clobber
+          if gh release view V0.1.5 >/dev/null 2>&1; then
+            gh release upload V0.1.5 ZAMAT-Control-V0.1.5.apk ZAMAT-Control-Web-V0.1.5.zip --clobber
           else
-            gh release create V0.1.4 \
-              ZAMAT-Control-V0.1.4.apk \
-              ZAMAT-Control-Web-V0.1.4.zip \
+            gh release create V0.1.5 \
+              ZAMAT-Control-V0.1.5.apk \
+              ZAMAT-Control-Web-V0.1.5.zip \
               --target "$GITHUB_SHA" \
-              --title "ZAMAT Control V0.1.4" \
-              --notes "Corrige el doble espacio superior en móviles. El encabezado ZAMAT queda inmediatamente debajo de la barra de estado, alineado con el panel lateral, manteniendo protegidas las áreas del sistema y la navegación inferior."
+              --title "ZAMAT Control V0.1.5" \
+              --notes "La APK ahora muestra la misma composición visual que la versión móvil de la página: Android reserva la barra de estado y la navegación fuera del WebView, sin superponer hora, batería o controles del sistema sobre el encabezado. Se elimina el padding nativo artificial y el contenido responsive usa exactamente el viewport disponible como en el navegador móvil."
           fi
