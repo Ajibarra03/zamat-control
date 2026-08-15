@@ -1,0 +1,162 @@
+/* ZAMAT Control V0.1.4 · Responsive móvil sin doble separación superior */
+:root{
+  --zamat-safe-top:env(safe-area-inset-top,0px);
+  --zamat-safe-right:env(safe-area-inset-right,0px);
+  --zamat-safe-bottom:env(safe-area-inset-bottom,0px);
+  --zamat-safe-left:env(safe-area-inset-left,0px);
+}
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+html{background:var(--forest-2)}
+body{min-width:0;min-height:100dvh;margin:0}
+img,svg,canvas,video{max-width:100%}
+.app-shell,.main-wrap,.content,.view,.panel,.table-panel,.dashboard-grid,.settings-grid,.product-grid,.cards-list{min-width:0;max-width:100%}
+.content{width:100%}
+.table-scroll,.inventory-table-scroll,.movement-table-scroll,.users-table-scroll,.order-board{max-width:100%;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.modal{max-height:calc(100dvh - var(--zamat-safe-top) - var(--zamat-safe-bottom) - 12px);overflow:auto;margin:auto}
+.modal form{max-height:calc(100dvh - var(--zamat-safe-top) - var(--zamat-safe-bottom) - 12px);overflow-y:auto;overscroll-behavior:contain}
+.auth-screen{min-height:100dvh;width:100%;padding:calc(var(--zamat-safe-top) + 12px) max(12px,var(--zamat-safe-right)) calc(var(--zamat-safe-bottom) + 12px) max(12px,var(--zamat-safe-left))}
+.auth-card{max-width:100%;max-height:calc(100dvh - var(--zamat-safe-top) - var(--zamat-safe-bottom) - 24px);overflow-y:auto;overscroll-behavior:contain}
+.sidebar-foot>small:last-child{font-size:0}
+.sidebar-foot>small:last-child::after{content:"Versión V0.1.4";font-size:12px}
+.sidebar-foot>span{font-size:0}
+.sidebar-foot>span::after{content:"Sincronización automática en la nube";font-size:12px}
+
+@media(max-width:900px){
+  body{font-size:15px;padding:0;background:var(--bg)}
+  input,select,textarea{font-size:16px;max-width:100%}
+  button,.btn,.nav-item{touch-action:manipulation}
+
+  /* La APK ya reserva físicamente las barras del sistema. En PWA, los env()
+     se aplican dentro del encabezado/panel, sin crear una franja vacía adicional. */
+  .app-shell{
+    display:block;
+    width:100%;
+    min-height:100dvh;
+    padding:0 var(--zamat-safe-right) var(--zamat-safe-bottom) var(--zamat-safe-left);
+    background:var(--bg);
+  }
+
+  .sidebar{
+    position:fixed;
+    width:min(86vw,300px);
+    height:100dvh;
+    top:0;
+    bottom:auto;
+    left:-100vw;
+    padding-top:calc(var(--zamat-safe-top) + 18px);
+    padding-left:max(14px,var(--zamat-safe-left));
+    padding-right:14px;
+    padding-bottom:calc(14px + var(--zamat-safe-bottom));
+    transition:.25s;
+    box-sizing:border-box;
+    overflow-y:auto;
+  }
+  .sidebar.open{left:0}
+  .overlay.show{display:block;position:fixed;inset:0;width:100vw;height:100dvh;background:rgba(0,0,0,.35);z-index:19}
+  .mobile-only{display:inline-flex}
+
+  .main-wrap{
+    width:100%;
+    max-width:100vw;
+    overflow-x:hidden;
+    min-height:100dvh;
+  }
+
+  .topbar{
+    width:100%;
+    max-width:100vw;
+    height:calc(68px + var(--zamat-safe-top));
+    top:0;
+    margin:0;
+    padding:calc(7px + var(--zamat-safe-top)) max(10px,var(--zamat-safe-right)) 7px max(10px,var(--zamat-safe-left));
+    grid-template-columns:44px minmax(0,1fr) 44px;
+    gap:8px;
+    align-items:center;
+    box-sizing:border-box;
+    background:var(--forest-2);
+  }
+  .topbar-left{display:contents}
+  .topbar-title{display:none}
+  .top-actions .btn{display:none}
+  .global-wordmark{width:min(54vw,220px);height:58px;max-width:100%;justify-self:center}
+  .global-wordmark img{max-height:58px}
+  .top-logo{width:40px;height:40px}
+  .icon-btn.mobile-only{width:40px;height:40px;padding:6px;align-items:center;justify-content:center}
+
+  .content{width:100%;max-width:100vw;padding:18px 12px calc(38px + var(--zamat-safe-bottom))}
+  .view.active{width:100%;max-width:100%}
+  .hero-card,.home-daily-card,.panel,.table-panel,.product-card,.account-card{width:100%;max-width:100%}
+  .hero-card{padding:20px 18px;border-radius:18px}
+  .hero-card h2{font-size:clamp(24px,7.6vw,30px);overflow-wrap:anywhere}
+  .section-head{width:100%;gap:12px;margin-bottom:16px}
+  .section-head h2{font-size:clamp(27px,8vw,34px);line-height:1.08;overflow-wrap:anywhere}
+  .section-actions{width:100%;gap:8px}
+  .panel{padding:16px;border-radius:15px}
+  .panel-head,.subhead{align-items:flex-start;flex-wrap:wrap}
+  .kpi-grid,.mini-kpis{width:100%}
+  .kpi-card,.mini-kpis>div{min-width:0}
+  .toolbar,.catalog-toolbar{width:100%;padding:12px}
+  .toolbar>*,.catalog-toolbar>*{max-width:100%}
+  .table-panel{overflow:hidden}
+  .table-scroll,.inventory-table-scroll,.movement-table-scroll,.users-table-scroll{width:100%;overflow-x:auto;overflow-y:auto}
+  table{width:max-content;min-width:680px;max-width:none}
+  th,td{padding:11px 12px}
+  .segmented{display:flex;width:100%;max-width:100%;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  .segmented button{flex:0 0 auto}
+  .order-board{width:100%;grid-template-columns:repeat(5,minmax(78vw,1fr));overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:var(--zamat-safe-bottom)}
+  .order-column{min-width:78vw;scroll-snap-align:start}
+  .order-card select,.order-control select{max-width:100%;min-width:0}
+
+  .modal{width:calc(100vw - var(--zamat-safe-left) - var(--zamat-safe-right) - 8px);border-radius:16px}
+  .modal form{padding:18px 14px}
+  .modal-head h3{font-size:clamp(23px,7vw,28px)}
+  .modal-actions{position:sticky;bottom:calc(-18px + var(--zamat-safe-bottom));background:#fff;margin-left:-14px;margin-right:-14px;padding:14px 14px calc(14px + var(--zamat-safe-bottom));z-index:3}
+  .modal-actions .btn{flex:1;min-width:0}
+  .toast{left:calc(12px + var(--zamat-safe-left));right:calc(12px + var(--zamat-safe-right));bottom:calc(12px + var(--zamat-safe-bottom));text-align:center}
+
+  .auth-card{width:min(100%,440px);padding:20px 16px;border-radius:20px}
+  .auth-brand{margin-bottom:18px}
+  .auth-brand>img:first-child{width:74px;height:74px}
+  .auth-wordmark{width:min(180px,58vw)}
+  .auth-card h1{font-size:clamp(26px,8vw,31px)}
+  .auth-copy{font-size:15px}
+
+  .home-daily-card{min-height:auto;padding:28px 18px;border-radius:20px}
+  .home-logo-panel{width:min(64vw,260px)}
+  .home-message-panel blockquote{font-size:clamp(27px,8.5vw,42px)}
+  .user-profile-card,.user-profile-main,.locked-brand{min-width:0}
+  .backup-actions .btn,.backup-actions .file-btn{flex:1 1 150px}
+}
+
+@media(max-width:520px){
+  .section-actions,.inventory-actions{display:grid!important;grid-template-columns:1fr!important;width:100%}
+  .section-actions .btn,.inventory-actions .btn{width:100%}
+  .kpi-grid,.mini-kpis{grid-template-columns:1fr}
+  .product-meta{grid-template-columns:1fr}
+  .list-row{align-items:flex-start;flex-wrap:wrap}
+  .list-row>.amount{margin-left:auto}
+  .order-board{grid-template-columns:repeat(5,minmax(86vw,1fr))}
+  .order-column{min-width:86vw}
+  .topbar{height:calc(66px + var(--zamat-safe-top));grid-template-columns:40px minmax(0,1fr) 40px;gap:5px}
+  .global-wordmark{width:min(52vw,185px);height:54px}
+  .global-wordmark img{max-height:54px}
+  .top-logo{width:38px;height:38px}
+  .icon-btn.mobile-only{width:38px;height:38px;padding:5px}
+}
+
+@media(max-width:360px){
+  .content{padding-left:9px;padding-right:9px}
+  .panel{padding:13px}
+  .global-wordmark{width:48vw}
+  .auth-card{padding-left:13px;padding-right:13px}
+  .modal-actions{flex-direction:column}
+  .modal-actions .btn{width:100%}
+}
+
+@media(max-width:900px) and (orientation:landscape){
+  .auth-screen{place-items:start center;padding-top:calc(var(--zamat-safe-top) + 8px);padding-bottom:calc(var(--zamat-safe-bottom) + 8px)}
+  .auth-card{max-height:calc(100dvh - var(--zamat-safe-top) - var(--zamat-safe-bottom) - 16px)}
+  .auth-brand>img:first-child{width:58px;height:58px;margin-bottom:4px}
+  .auth-brand{margin-bottom:12px}
+  .home-logo-panel{width:min(34vw,210px)}
+}
