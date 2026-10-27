@@ -24,6 +24,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Hogar_Compartido_Android_v1_0_APK
+          name: Hogar_Compartido_v1_9_2_Notificaciones_APK
           path: hogar-apk/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error

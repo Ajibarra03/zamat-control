@@ -35,6 +35,8 @@ public class MainActivity extends Activity {
     s.setAllowFileAccess(false);s.setAllowContentAccess(false);
     s.setJavaScriptCanOpenWindowsAutomatically(false);s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
     CookieManager.getInstance().setAcceptCookie(true);
+    web.addJavascriptInterface(new ReminderSupport.Bridge(this),"AndroidReminders");
+    ReminderSupport.setupChannel(this);
     web.setWebChromeClient(new WebChromeClient());
     loading=new ProgressBar(this);
     root.addView(loading,new FrameLayout.LayoutParams(120,120,Gravity.CENTER));
