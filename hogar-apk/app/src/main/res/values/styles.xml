@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources><style name="HogarTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+<item name="android:statusBarColor">#101b2d</item>
+<item name="android:navigationBarColor">#0d1626</item>
+<item name="android:windowLightStatusBar">false</item>
+<item name="android:windowSoftInputMode">adjustResize</item>
+</style></resources>
