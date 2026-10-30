@@ -6,7 +6,7 @@ on:
       - 'hogar-apk/**'
       - '.github/workflows/hogar-apk.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,3 +27,16 @@ jobs:
           name: Hogar_Compartido_v1_9_2_Notificaciones_APK
           path: hogar-apk/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+      - name: Publish direct downloadable Android APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp hogar-apk/app/build/outputs/apk/debug/app-debug.apk HogarCompartido_v1.9.2.apk
+          if gh release view hogar-compartido-v1.9.2 >/dev/null 2>&1; then
+            gh release upload hogar-compartido-v1.9.2 HogarCompartido_v1.9.2.apk --clobber
+          else
+            gh release create hogar-compartido-v1.9.2 HogarCompartido_v1.9.2.apk \
+              --target "$GITHUB_SHA" \
+              --title "Hogar Compartido Android v1.9.2" \
+              --notes "Instalador APK Android directo con recordatorios locales. Proyecto Android aislado en la rama build-hogar-compartido-apk."
+          fi
