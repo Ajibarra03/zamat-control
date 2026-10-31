@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
   WebView web; ProgressBar loading; LinearLayout error; boolean failed=false;
   private static final int PICK_RECEIPT=7421, SAVE_EXPORT=7422;
   private ValueCallback<Uri[]> chooser;
+  private boolean choosingBackup=false;
   private byte[] pendingExport;
   private String pendingExportName;
   private String pendingExportMime;
@@ -53,13 +54,15 @@ public class MainActivity extends Activity {
       @Override public boolean onShowFileChooser(WebView view,ValueCallback<Uri[]> callback,FileChooserParams params){
         if(chooser!=null){chooser.onReceiveValue(null);chooser=null;}
         chooser=callback;
+        choosingBackup=false;
+        for(String accept:params.getAcceptTypes())if(accept!=null&&accept.toLowerCase(Locale.ROOT).contains("json"))choosingBackup=true;
         try{
           Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT);
           picker.addCategory(Intent.CATEGORY_OPENABLE);
           picker.setType("*/*");
-          picker.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"application/pdf","image/jpeg","image/png","image/webp"});
+          picker.putExtra(Intent.EXTRA_MIME_TYPES,choosingBackup?new String[]{"application/json","text/plain","application/octet-stream"}:new String[]{"application/pdf","image/jpeg","image/png","image/webp"});
           startActivityForResult(picker,PICK_RECEIPT);
-        }catch(Exception ex){chooser=null;callback.onReceiveValue(null);Toast.makeText(MainActivity.this,"No se pudo abrir el selector de comprobantes",Toast.LENGTH_LONG).show();}
+        }catch(Exception ex){chooser=null;choosingBackup=false;callback.onReceiveValue(null);Toast.makeText(MainActivity.this,"No se pudo abrir el selector de comprobantes",Toast.LENGTH_LONG).show();}
         return true;
       }
     });
@@ -126,11 +129,13 @@ public class MainActivity extends Activity {
         Uri uri=(resultCode==RESULT_OK&&data!=null)?data.getData():null;
         if(uri!=null&&"content".equalsIgnoreCase(uri.getScheme())){
           String type=getContentResolver().getType(uri);
-          if(!"application/pdf".equals(type)&&!"image/jpeg".equals(type)&&!"image/png".equals(type)&&!"image/webp".equals(type)){
+          boolean allowed=choosingBackup?("application/json".equals(type)||"text/plain".equals(type)||"application/octet-stream".equals(type)):("application/pdf".equals(type)||"image/jpeg".equals(type)||"image/png".equals(type)||"image/webp".equals(type));
+          choosingBackup=false;
+          if(!allowed){
             Toast.makeText(this,"Elegí un PDF o una imagen JPG, PNG o WebP",Toast.LENGTH_LONG).show();
             callback.onReceiveValue(null);
           }else callback.onReceiveValue(new Uri[]{uri});
-        }else callback.onReceiveValue(null);
+        }else{choosingBackup=false;callback.onReceiveValue(null);}
       }
       return;
     }
@@ -150,5 +155,5 @@ public class MainActivity extends Activity {
     }
   }
   @Override public void onBackPressed(){if(web!=null&&web.canGoBack())web.goBack();else super.onBackPressed();}
-  @Override public void onDestroy(){if(chooser!=null){chooser.onReceiveValue(null);chooser=null;}pendingExport=null;if(web!=null)web.destroy();super.onDestroy();}
+  @Override public void onDestroy(){if(chooser!=null){chooser.onReceiveValue(null);chooser=null;}choosingBackup=false;pendingExport=null;if(web!=null)web.destroy();super.onDestroy();}
 }
