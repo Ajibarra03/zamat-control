@@ -99,11 +99,12 @@ public class MainActivity extends Activity {
       boolean json=safe.endsWith(".json")&&mime.startsWith("application/json");
       boolean csv=safe.endsWith(".csv")&&mime.startsWith("text/csv");
       boolean pdf=safe.endsWith(".pdf")&&mime.startsWith("application/pdf");
-      if(!(json||csv||pdf)||!safe.matches("(hogar-compartido-respaldo|informe-hogar|cuentas-hogar|finanzas-hogar)[a-zA-Z0-9._ -]*"))return;
+      boolean zip=safe.endsWith(".zip")&&(mime.startsWith("application/zip")||mime.startsWith("application/x-zip-compressed"));
+      if(!(json||csv||pdf||zip)||!safe.matches("(hogar-compartido-respaldo|informe-hogar|cuentas-hogar|finanzas-hogar)[a-zA-Z0-9._ -]*"))return;
       try {
         byte[] bytes=Base64.decode(encoded,Base64.DEFAULT);
         if(bytes.length<1||bytes.length>10*1024*1024)return;
-        String type=json?"application/json":csv?"text/csv":"application/pdf";
+        String type=json?"application/json":csv?"text/csv":pdf?"application/pdf":"application/zip";
         runOnUiThread(()->{
           if(pendingExport!=null){Toast.makeText(MainActivity.this,"Terminá de guardar el archivo anterior",Toast.LENGTH_LONG).show();return;}
           pendingExport=bytes;pendingExportName=safe;pendingExportMime=type;
