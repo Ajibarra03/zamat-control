@@ -69,11 +69,12 @@ public class MainActivity extends Activity {
         chooser=callback;
         choosingBackup=false;
         choosingCamera=false;
-        for(String accept:params.getAcceptTypes())if(accept!=null&&accept.toLowerCase(Locale.ROOT).contains("json"))choosingBackup=true;
+        String[] types=params.getAcceptTypes();
+        if(types!=null)for(String accept:types)if(accept!=null&&accept.toLowerCase(Locale.ROOT).contains("json"))choosingBackup=true;
         boolean wantsImage=false;
-        for(String accept:params.getAcceptTypes())if(accept!=null&&accept.toLowerCase(Locale.ROOT).startsWith("image/"))wantsImage=true;
+        if(types!=null)for(String accept:types)if(accept!=null&&accept.toLowerCase(Locale.ROOT).startsWith("image/"))wantsImage=true;
         choosingCamera=params.isCaptureEnabled()&&wantsImage&&!choosingBackup&&Build.VERSION.SDK_INT>=29;
-        try{
+        try {
           if(choosingCamera){
             ContentValues values=new ContentValues();
             values.put(MediaStore.Images.Media.DISPLAY_NAME,"comprobante_"+System.currentTimeMillis()+".jpg");
@@ -81,21 +82,27 @@ public class MainActivity extends Activity {
             values.put(MediaStore.Images.Media.RELATIVE_PATH,"Pictures/Hogar Compartido");
             values.put(MediaStore.Images.Media.IS_PENDING,1);
             pendingCameraUri=getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values);
-            if(pendingCameraUri==null)throw new IllegalStateException("No se pudo preparar el archivo de la cámara");
+            if(pendingCameraUri==null)throw new IOException("No se pudo crear el archivo temporal");
             Intent camera=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             camera.putExtra(MediaStore.EXTRA_OUTPUT,pendingCameraUri);
+            camera.setClipData(ClipData.newRawUri("Comprobante",pendingCameraUri));
             camera.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivityForResult(camera,PICK_RECEIPT);
           }else{
             Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT);
             picker.addCategory(Intent.CATEGORY_OPENABLE);
             picker.setType("*/*");
-            picker.putExtra(Intent.EXTRA_MIME_TYPES,choosingBackup?new String[]{"application/json","text/plain","application/octet-stream"}:new String[]{"application/pdf","image/jpeg","image/png","image/webp"});
+            picker.putExtra(Intent.EXTRA_MIME_TYPES,choosingBackup
+              ?new String[]{"application/json","text/plain","application/octet-stream"}
+              :new String[]{"application/pdf","image/jpeg","image/png","image/webp"});
+            picker.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,params.getMode()==FileChooserParams.MODE_OPEN_MULTIPLE);
+            picker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivityForResult(picker,PICK_RECEIPT);
           }
         }catch(Exception ex){
-          discardPendingCamera();chooser=null;choosingBackup=false;choosingCamera=false;callback.onReceiveValue(null);
-          Toast.makeText(MainActivity.this,"No se pudo abrir "+(params.isCaptureEnabled()?"la cámara":"el selector de documentos"),Toast.LENGTH_LONG).show();
+          discardPendingCamera();chooser=null;choosingBackup=false;choosingCamera=false;
+          callback.onReceiveValue(null);
+          Toast.makeText(MainActivity.this,"No se pudo abrir "+(params.isCaptureEnabled()?"la cámara":"el selector de archivos"),Toast.LENGTH_LONG).show();
         }
         return true;
       }
@@ -247,28 +254,46 @@ public class MainActivity extends Activity {
     super.onActivityResult(code,resultCode,data);
     if(code==PICK_RECEIPT){
       ValueCallback<Uri[]> callback=chooser;chooser=null;
-      boolean camera=choosingCamera;
-      choosingCamera=false;
+      boolean camera=choosingCamera,backup=choosingBackup;
+      choosingCamera=false;choosingBackup=false;
       if(callback!=null){
-        Uri uri=resultCode==RESULT_OK?(camera?pendingCameraUri:(data!=null?data.getData():null)):null;
-        if(camera&&uri!=null){
-          try{
-            ContentValues done=new ContentValues();
-            done.put(MediaStore.Images.Media.IS_PENDING,0);
-            getContentResolver().update(uri,done,null,null);
-          }catch(Exception ignored){}
-          pendingCameraUri=null;
-        }else if(camera)discardPendingCamera();
-        if(uri!=null&&"content".equalsIgnoreCase(uri.getScheme())){
-          String type=getContentResolver().getType(uri);
-          boolean allowed=camera|| (choosingBackup?("application/json".equals(type)||"text/plain".equals(type)||"application/octet-stream".equals(type)):("application/pdf".equals(type)||"image/jpeg".equals(type)||"image/png".equals(type)||"image/webp".equals(type)));
-          choosingBackup=false;
-          if(!allowed){
-            Toast.makeText(this,"Elegí un PDF o una imagen JPG, PNG o WebP",Toast.LENGTH_LONG).show();
-            callback.onReceiveValue(null);
-          }else callback.onReceiveValue(new Uri[]{uri});
-        }else{choosingBackup=false;callback.onReceiveValue(null);}
-      }
+        Uri[] selected=null;
+        if(resultCode==RESULT_OK){
+          if(camera&&pendingCameraUri!=null){
+            Uri photo=pendingCameraUri;
+            try{
+              ContentValues done=new ContentValues();
+              done.put(MediaStore.Images.Media.IS_PENDING,0);
+              getContentResolver().update(photo,done,null,null);
+              selected=new Uri[]{photo};pendingCameraUri=null;
+            }catch(Exception err){discardPendingCamera();Toast.makeText(this,"No se pudo finalizar la foto",Toast.LENGTH_LONG).show();}
+          }else if(data!=null){
+            java.util.ArrayList<Uri> items=new java.util.ArrayList<>();
+            if(data.getClipData()!=null){
+              ClipData clip=data.getClipData();
+              for(int i=0;i<Math.min(clip.getItemCount(),10);i++)items.add(clip.getItemAt(i).getUri());
+              if(clip.getItemCount()>10){
+                items.clear();
+                Toast.makeText(this,"Podés seleccionar hasta 10 archivos por vez",Toast.LENGTH_LONG).show();
+              }
+            }else if(data.getData()!=null)items.add(data.getData());
+            java.util.ArrayList<Uri> valid=new java.util.ArrayList<>();
+            boolean denied=false;
+            for(Uri uri:items){
+              if(uri==null||!"content".equalsIgnoreCase(uri.getScheme())){denied=true;break;}
+              String type=getContentResolver().getType(uri);
+              boolean allowed=backup?("application/json".equals(type)||"text/plain".equals(type)||"application/octet-stream".equals(type)):
+                ("application/pdf".equals(type)||"image/jpeg".equals(type)||"image/png".equals(type)||"image/webp".equals(type));
+              if(!allowed){denied=true;break;}
+              valid.add(uri);
+            }
+            if(denied){Toast.makeText(this,"Seleccioná PDF o imágenes JPG, PNG y WebP",Toast.LENGTH_LONG).show();}
+            else if(!valid.isEmpty())selected=valid.toArray(new Uri[0]);
+          }
+        }
+        if(camera&&selected==null)discardPendingCamera();
+        callback.onReceiveValue(selected);
+      }else if(camera)discardPendingCamera();
       return;
     }
     if(code==SAVE_EXPORT){
