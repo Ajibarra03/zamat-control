@@ -3,6 +3,12 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Build;
 import android.util.Base64;
+import android.provider.OpenableColumns;
+import android.database.Cursor;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import org.json.JSONObject;
 import android.provider.MediaStore;
 import android.content.ContentValues;
 import android.content.ContentResolver;
@@ -28,10 +34,11 @@ public class MainActivity extends Activity {
   final String HOME="https://hogar-compartido-tripers.vercel.app/";
   final int BG=Color.rgb(13,22,38);
   WebView web; ProgressBar loading; LinearLayout error; boolean failed=false;
-  private static final int PICK_RECEIPT=7421, SAVE_EXPORT=7422;
+  private static final int PICK_RECEIPT=7421, SAVE_EXPORT=7422, PICK_NATIVE_RECEIPT=7423;
   private ValueCallback<Uri[]> chooser;
   private boolean choosingBackup=false;
   private boolean choosingCamera=false;
+  private boolean nativeCamera=false;
   private Uri pendingCameraUri=null;
   private byte[] pendingExport;
   private String pendingExportName;
@@ -120,6 +127,40 @@ public class MainActivity extends Activity {
 
   // A very narrow bridge: only local user-approved JSON, CSV and PDF saves.
   public final class DocumentBridge {
+    // The user invokes the native picker/camera directly; no web file-input tricks.
+    @JavascriptInterface public void pickReceipt(String mode){
+      runOnUiThread(()->{
+        if(chooser!=null){Toast.makeText(MainActivity.this,"Cerrá el selector anterior",Toast.LENGTH_LONG).show();return;}
+        if(pendingCameraUri!=null)discardPendingCamera();
+        nativeCamera="camera".equals(mode);
+        try{
+          if(nativeCamera){
+            if(Build.VERSION.SDK_INT<29)throw new IllegalStateException("Cámara no compatible");
+            ContentValues values=new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME,"comprobante_"+System.currentTimeMillis()+".jpg");
+            values.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
+            values.put(MediaStore.Images.Media.RELATIVE_PATH,"Pictures/Hogar Compartido");
+            values.put(MediaStore.Images.Media.IS_PENDING,1);
+            pendingCameraUri=getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values);
+            if(pendingCameraUri==null)throw new IOException("No se pudo abrir almacenamiento");
+            Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT,pendingCameraUri);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivityForResult(intent,PICK_NATIVE_RECEIPT);
+          }else{
+            Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"image/jpeg","image/png","image/webp","application/pdf"});
+            startActivityForResult(intent,PICK_NATIVE_RECEIPT);
+          }
+        }catch(Exception err){
+          discardPendingCamera();
+          runNativeCancelled();
+          Toast.makeText(MainActivity.this,"No se pudo abrir "+(nativeCamera?"la cámara":"el explorador"),Toast.LENGTH_LONG).show();
+        }
+      });
+    }
     @JavascriptInterface public void saveBase64(String filename,String mime,String encoded) {
       if(filename==null||mime==null||encoded==null||filename.length()>130||encoded.length()>15000000)return;
       String safe=filename.replaceAll("[^a-zA-Z0-9._ -]","_");
@@ -155,7 +196,54 @@ public class MainActivity extends Activity {
       pendingCameraUri=null;
     }
   }
+  private void runNativeCancelled(){
+    if(web!=null)web.evaluateJavascript("window.HogarNativeFiles?.cancel?.()",null);
+  }
+  private void handleNativeReceipt(Uri uri,boolean fromCamera){
+    new Thread(()->{
+      try{
+        String mime=fromCamera?"image/jpeg":getContentResolver().getType(uri);
+        if(mime==null)throw new IOException("Tipo de archivo desconocido");
+        if(!mime.equals("application/pdf")&&!mime.equals("image/jpeg")&&!mime.equals("image/png")&&!mime.equals("image/webp"))
+           throw new IOException("Solo se permiten PDF, JPG, PNG y WebP");
+        String name=fromCamera?"comprobante.jpg":"comprobante";
+        if(!fromCamera){
+          try(Cursor cursor=getContentResolver().query(uri,new String[]{OpenableColumns.DISPLAY_NAME},null,null,null)){
+            if(cursor!=null&&cursor.moveToFirst())name=cursor.getString(0);
+          }catch(Exception ignored){}
+        }
+        if(name==null||name.isEmpty())name="comprobante";
+        name=name.replaceAll("[\\r\\n]"," ").substring(0,Math.min(180,name.length()));
+        ByteArrayOutputStream output=new ByteArrayOutputStream();
+        try(InputStream stream=getContentResolver().openInputStream(uri)){
+          if(stream==null)throw new IOException("No se pudo leer el archivo");
+          byte[] buffer=new byte[8192];int length;
+          while((length=stream.read(buffer))!=-1){
+            if(output.size()+length>5242880)throw new IOException("Archivo de más de 5 MB");
+            output.write(buffer,0,length);
+          }
+        }
+        byte[] bytes=output.toByteArray();if(bytes.length==0)throw new IOException("Archivo vacío");
+        String payload="window.HogarNativeFiles?.receiveFile?.("+JSONObject.quote(name)+","+JSONObject.quote(mime)+","+JSONObject.quote(Base64.encodeToString(bytes,Base64.NO_WRAP))+")";
+        runOnUiThread(()->{if(web!=null)web.evaluateJavascript(payload,null);});
+      }catch(Exception e){
+        runOnUiThread(()->{runNativeCancelled();Toast.makeText(this,"No se pudo leer el comprobante: "+e.getMessage(),Toast.LENGTH_LONG).show();});
+      }
+    }).start();
+  }
   @Override protected void onActivityResult(int code,int resultCode,Intent data) {
+    if(code==PICK_NATIVE_RECEIPT){
+      boolean fromCamera=nativeCamera;nativeCamera=false;
+      Uri uri=resultCode==RESULT_OK?(fromCamera?pendingCameraUri:(data!=null?data.getData():null)):null;
+      if(uri!=null&&"content".equalsIgnoreCase(uri.getScheme())){
+        if(fromCamera){
+          try{ContentValues values=new ContentValues();values.put(MediaStore.Images.Media.IS_PENDING,0);getContentResolver().update(uri,values,null,null);}catch(Exception ignored){}
+          pendingCameraUri=null;
+        }
+        handleNativeReceipt(uri,fromCamera);
+      }else{if(fromCamera)discardPendingCamera();runNativeCancelled();}
+      return;
+    }
     super.onActivityResult(code,resultCode,data);
     if(code==PICK_RECEIPT){
       ValueCallback<Uri[]> callback=chooser;chooser=null;
@@ -199,5 +287,5 @@ public class MainActivity extends Activity {
     }
   }
   @Override public void onBackPressed(){if(web!=null&&web.canGoBack())web.goBack();else super.onBackPressed();}
-  @Override public void onDestroy(){if(chooser!=null){chooser.onReceiveValue(null);chooser=null;}discardPendingCamera();choosingBackup=false;choosingCamera=false;pendingExport=null;if(web!=null)web.destroy();super.onDestroy();}
+  @Override public void onDestroy(){if(chooser!=null){chooser.onReceiveValue(null);chooser=null;}discardPendingCamera();choosingBackup=false;choosingCamera=false;nativeCamera=false;pendingExport=null;if(web!=null)web.destroy();super.onDestroy();}
 }

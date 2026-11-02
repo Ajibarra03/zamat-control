@@ -24,19 +24,19 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Hogar_Compartido_v1_9_9_Notificaciones_APK
+          name: Hogar_Compartido_v1_9_13_Notificaciones_APK
           path: hogar-apk/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
       - name: Publish direct downloadable Android APK
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp hogar-apk/app/build/outputs/apk/debug/app-debug.apk HogarCompartido_v1.9.9.apk
-          if gh release view hogar-compartido-v1.9.9 >/dev/null 2>&1; then
-            gh release upload hogar-compartido-v1.9.9 HogarCompartido_v1.9.9.apk --clobber
+          cp hogar-apk/app/build/outputs/apk/debug/app-debug.apk HogarCompartido_v1.9.13.apk
+          if gh release view hogar-compartido-v1.9.13 >/dev/null 2>&1; then
+            gh release upload hogar-compartido-v1.9.13 HogarCompartido_v1.9.13.apk --clobber
           else
-            gh release create hogar-compartido-v1.9.9 HogarCompartido_v1.9.9.apk \
+            gh release create hogar-compartido-v1.9.13 HogarCompartido_v1.9.13.apk \
               --target "$GITHUB_SHA" \
-              --title "Hogar Compartido Android v1.9.9" \
-              --notes "APK Android con recordatorios, cámara de comprobantes, archivos y respaldos. Proyecto Android aislado en la rama build-hogar-compartido-apk."
+              --title "Hogar Compartido Android v1.9.13" \
+              --notes "APK Android con selector nativo directo de archivos y cámara, notificaciones y listas compartidas. Proyecto Android aislado en la rama build-hogar-compartido-apk."
           fi
