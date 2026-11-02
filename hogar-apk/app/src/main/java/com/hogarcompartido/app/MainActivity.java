@@ -3,6 +3,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Build;
 import android.util.Base64;
+import android.provider.MediaStore;
+import android.content.ContentValues;
+import android.content.ContentResolver;
 import android.webkit.JavascriptInterface;
 import android.content.ClipData;
 import android.widget.Toast;
@@ -28,6 +31,8 @@ public class MainActivity extends Activity {
   private static final int PICK_RECEIPT=7421, SAVE_EXPORT=7422;
   private ValueCallback<Uri[]> chooser;
   private boolean choosingBackup=false;
+  private boolean choosingCamera=false;
+  private Uri pendingCameraUri=null;
   private byte[] pendingExport;
   private String pendingExportName;
   private String pendingExportMime;
@@ -53,16 +58,38 @@ public class MainActivity extends Activity {
     web.setWebChromeClient(new WebChromeClient(){
       @Override public boolean onShowFileChooser(WebView view,ValueCallback<Uri[]> callback,FileChooserParams params){
         if(chooser!=null){chooser.onReceiveValue(null);chooser=null;}
+        discardPendingCamera();
         chooser=callback;
         choosingBackup=false;
+        choosingCamera=false;
         for(String accept:params.getAcceptTypes())if(accept!=null&&accept.toLowerCase(Locale.ROOT).contains("json"))choosingBackup=true;
+        boolean wantsImage=false;
+        for(String accept:params.getAcceptTypes())if(accept!=null&&accept.toLowerCase(Locale.ROOT).startsWith("image/"))wantsImage=true;
+        choosingCamera=params.isCaptureEnabled()&&wantsImage&&!choosingBackup&&Build.VERSION.SDK_INT>=29;
         try{
-          Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT);
-          picker.addCategory(Intent.CATEGORY_OPENABLE);
-          picker.setType("*/*");
-          picker.putExtra(Intent.EXTRA_MIME_TYPES,choosingBackup?new String[]{"application/json","text/plain","application/octet-stream"}:new String[]{"application/pdf","image/jpeg","image/png","image/webp"});
-          startActivityForResult(picker,PICK_RECEIPT);
-        }catch(Exception ex){chooser=null;choosingBackup=false;callback.onReceiveValue(null);Toast.makeText(MainActivity.this,"No se pudo abrir el selector de comprobantes",Toast.LENGTH_LONG).show();}
+          if(choosingCamera){
+            ContentValues values=new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME,"comprobante_"+System.currentTimeMillis()+".jpg");
+            values.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
+            values.put(MediaStore.Images.Media.RELATIVE_PATH,"Pictures/Hogar Compartido");
+            values.put(MediaStore.Images.Media.IS_PENDING,1);
+            pendingCameraUri=getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values);
+            if(pendingCameraUri==null)throw new IllegalStateException("No se pudo preparar el archivo de la cámara");
+            Intent camera=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            camera.putExtra(MediaStore.EXTRA_OUTPUT,pendingCameraUri);
+            camera.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivityForResult(camera,PICK_RECEIPT);
+          }else{
+            Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            picker.addCategory(Intent.CATEGORY_OPENABLE);
+            picker.setType("*/*");
+            picker.putExtra(Intent.EXTRA_MIME_TYPES,choosingBackup?new String[]{"application/json","text/plain","application/octet-stream"}:new String[]{"application/pdf","image/jpeg","image/png","image/webp"});
+            startActivityForResult(picker,PICK_RECEIPT);
+          }
+        }catch(Exception ex){
+          discardPendingCamera();chooser=null;choosingBackup=false;choosingCamera=false;callback.onReceiveValue(null);
+          Toast.makeText(MainActivity.this,"No se pudo abrir "+(params.isCaptureEnabled()?"la cámara":"el selector de documentos"),Toast.LENGTH_LONG).show();
+        }
         return true;
       }
     });
@@ -122,15 +149,31 @@ public class MainActivity extends Activity {
       }catch(Exception ignored){}
     }
   }
+  private void discardPendingCamera(){
+    if(pendingCameraUri!=null){
+      try{getContentResolver().delete(pendingCameraUri,null,null);}catch(Exception ignored){}
+      pendingCameraUri=null;
+    }
+  }
   @Override protected void onActivityResult(int code,int resultCode,Intent data) {
     super.onActivityResult(code,resultCode,data);
     if(code==PICK_RECEIPT){
       ValueCallback<Uri[]> callback=chooser;chooser=null;
+      boolean camera=choosingCamera;
+      choosingCamera=false;
       if(callback!=null){
-        Uri uri=(resultCode==RESULT_OK&&data!=null)?data.getData():null;
+        Uri uri=resultCode==RESULT_OK?(camera?pendingCameraUri:(data!=null?data.getData():null)):null;
+        if(camera&&uri!=null){
+          try{
+            ContentValues done=new ContentValues();
+            done.put(MediaStore.Images.Media.IS_PENDING,0);
+            getContentResolver().update(uri,done,null,null);
+          }catch(Exception ignored){}
+          pendingCameraUri=null;
+        }else if(camera)discardPendingCamera();
         if(uri!=null&&"content".equalsIgnoreCase(uri.getScheme())){
           String type=getContentResolver().getType(uri);
-          boolean allowed=choosingBackup?("application/json".equals(type)||"text/plain".equals(type)||"application/octet-stream".equals(type)):("application/pdf".equals(type)||"image/jpeg".equals(type)||"image/png".equals(type)||"image/webp".equals(type));
+          boolean allowed=camera|| (choosingBackup?("application/json".equals(type)||"text/plain".equals(type)||"application/octet-stream".equals(type)):("application/pdf".equals(type)||"image/jpeg".equals(type)||"image/png".equals(type)||"image/webp".equals(type)));
           choosingBackup=false;
           if(!allowed){
             Toast.makeText(this,"Elegí un PDF o una imagen JPG, PNG o WebP",Toast.LENGTH_LONG).show();
@@ -156,5 +199,5 @@ public class MainActivity extends Activity {
     }
   }
   @Override public void onBackPressed(){if(web!=null&&web.canGoBack())web.goBack();else super.onBackPressed();}
-  @Override public void onDestroy(){if(chooser!=null){chooser.onReceiveValue(null);chooser=null;}choosingBackup=false;pendingExport=null;if(web!=null)web.destroy();super.onDestroy();}
+  @Override public void onDestroy(){if(chooser!=null){chooser.onReceiveValue(null);chooser=null;}discardPendingCamera();choosingBackup=false;choosingCamera=false;pendingExport=null;if(web!=null)web.destroy();super.onDestroy();}
 }
